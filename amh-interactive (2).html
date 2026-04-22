@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>AMH & Live Birth — ESHRE 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap');
+
+:root {
+  --navy: #0f2240;
+  --teal: #1e7f74;
+  --teal-light: #2aab9d;
+  --gold: #c9a84c;
+  --cream: #f7f5f0;
+  --white: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b7a94;
+  --border: rgba(15,34,64,0.10);
+  --radius: 16px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* HERO */
+.hero {
+  background: var(--navy);
+  padding: 28px 20px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  right: -80px; bottom: -80px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30,127,116,0.25), transparent 70%);
+  pointer-events: none;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(201,168,76,0.18);
+  border: 1px solid rgba(201,168,76,0.45);
+  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 5px 11px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: clamp(1.1rem, 5vw, 1.6rem);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+.hero h1 em { color: var(--teal-light); font-style: italic; }
+.hero-meta {
+  color: rgba(255,255,255,0.5);
+  font-size: 0.72rem;
+  line-height: 1.5;
+}
+.hero-meta strong { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+/* TABS */
+.tabs {
+  display: flex;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.tab {
+  flex: 1;
+  padding: 14px 8px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+/* PANELS */
+.content { padding: 20px 16px 48px; max-width: 600px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; animation: up 0.3s ease; }
+@keyframes up { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* CARDS */
+.card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 14px;
+}
+
+/* STATS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--white);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 16px 14px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 4px;
+  background: var(--teal);
+}
+.stat-card.gold::before { background: var(--gold); }
+.stat-card.navy::before { background: var(--navy); }
+.stat-card.red::before { background: #c0392b; }
+.stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.9rem;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 5px;
+}
+.stat-label { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
+.stat-note { font-size: 0.63rem; color: var(--teal); font-weight: 600; margin-top: 5px; }
+
+.chart-title { font-size: 0.88rem; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+.chart-sub { font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+
+/* CALCULATOR */
+.field { margin-bottom: 22px; }
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.field-label span { font-size: 0.85rem; font-weight: 600; color: var(--navy); }
+.field-label strong { font-size: 1.05rem; color: var(--teal); font-weight: 700; }
+
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, var(--teal) 0%, var(--teal) var(--val,30%), #e5e7eb var(--val,30%));
+  outline: none;
+  cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+input[type=range]::-moz-range-thumb {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 3px solid white;
+}
+
+.amh-markers {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.amh-markers span { font-size: 0.6rem; color: var(--muted); }
+
+.toggle-row { display: flex; gap: 10px; }
+.toggle-btn {
+  flex: 1;
+  padding: 16px 10px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.toggle-btn.on {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: white;
+  font-weight: 600;
+}
+
+.calc-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 6px;
+  letter-spacing: 0.02em;
+  -webkit-tap-highlight-color: transparent;
+}
+.calc-btn:active { background: #18685e; transform: scale(0.99); }
+
+/* RESULT */
+.result-box {
+  background: var(--navy);
+  border-radius: var(--radius);
+  padding: 28px 20px;
+  margin-top: 14px;
+  text-align: center;
+  display: none;
+  animation: up 0.4s ease;
+}
+.result-box.show { display: block; }
+.result-pct {
+  font-family: 'DM Serif Display', serif;
+  font-size: 5rem;
+  color: white;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.result-lbl {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.5);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+}
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+.pill {
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+.p-ns { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.65); }
+.p-good { background: rgba(42,171,157,0.25); color: #7fffee; border: 1px solid rgba(42,171,157,0.3); }
+.p-warn { background: rgba(201,168,76,0.2); color: #ffd97d; border: 1px solid rgba(201,168,76,0.3); }
+.disc { font-size: 0.63rem; color: rgba(255,255,255,0.3); line-height: 1.5; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08); }
+
+/* SEM */
+.sem-diagram { max-width: 320px; margin: 0 auto 16px; }
+.sem-node {
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: center;
+}
+.sem-node-title { font-size: 0.68rem; font-weight: 600; opacity: 0.85; }
+.sem-node-val { font-family: 'DM Serif Display', serif; font-size: 1rem; margin-top: 2px; }
+.n-navy { background: var(--navy); color: white; }
+.n-teal { background: var(--teal); color: white; }
+.n-green { background: #1a5c3a; color: #aaffd4; }
+.n-red { background: #3d1515; color: #ffaaaa; }
+
+.v-arrow { text-align: center; padding: 4px 0; }
+.v-line { width: 2px; height: 22px; margin: 0 auto; border-radius: 1px; }
+.v-sig { background: var(--teal); }
+.v-ns { background: #d1d5db; }
+.v-label { font-size: 0.62rem; font-weight: 700; margin-top: 2px; }
+.vs-sig { color: var(--teal); }
+.vs-ns { color: #9ca3af; }
+
+.fit-row {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.fit-item { text-align: center; }
+.fit-val { font-family: 'DM Serif Display', serif; font-size: 1.05rem; color: var(--teal); }
+.fit-lbl { font-size: 0.58rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.conclusion-box {
+  background: linear-gradient(135deg, var(--navy), #1a3a60);
+  border-radius: var(--radius);
+  padding: 20px;
+  color: white;
+  margin-top: 14px;
+}
+.conclusion-box h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 10px; color: var(--teal-light); }
+.conclusion-box p { font-size: 0.8rem; line-height: 1.65; color: rgba(255,255,255,0.8); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="badge">🔬 ESHRE 2026 · Poster</div>
+  <h1>AMH & Live Birth After <em>Single Euploid</em> Frozen Embryo Transfer</h1>
+  <p class="hero-meta">
+    <strong>Sonmez N, Boynukalın FK, Gultomruk M, Bahceci M, Bozdag G</strong><br>
+    Bahceci Fulya IVF Center · Istanbul, Türkiye
+  </p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('findings')">📊 Results</div>
+  <div class="tab" onclick="switchTab('calc')">🧮 Calculator</div>
+  <div class="tab" onclick="switchTab('sem')">🔬 Pathway</div>
+</div>
+
+<div class="content">
+
+<!-- FINDINGS -->
+<div class="panel active" id="panel-findings">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num">985</div>
+      <div class="stat-label">Euploid FET cycles</div>
+      <div class="stat-note">3 centers · 6 years</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-num">~51%</div>
+      <div class="stat-label">Live birth rate</div>
+      <div class="stat-note">Across all AMH groups</div>
+    </div>
+    <div class="stat-card navy">
+      <div class="stat-num">1.70×</div>
+      <div class="stat-label">Day 5 vs Day 6 odds</div>
+      <div class="stat-note">p &lt; 0.001 ✓</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-num">p=0.06</div>
+      <div class="stat-label">AMH as predictor</div>
+      <div class="stat-note">Not significant</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="chart-title">Live Birth Rate by AMH Group</div>
+    <div class="chart-sub">No significant difference across Low, Normal, and High AMH (p=0.244)</div>
+    <canvas id="lbrChart" height="130"></canvas>
+  </div>
+
+  <div class="card">
+    <div class="chart-title">AMH Predicts Oocytes — Not Live Birth</div>
+    <div class="chart-sub">As AMH rises, oocyte yield increases sharply. Live birth rate stays flat.</div>
+    <canvas id="responseChart" height="160"></canvas>
+  </div>
+
+  <div class="conclusion-box">
+    <h3>Key Message</h3>
+    <p>AMH strongly predicts ovarian response and blastocyst yield but <strong style="color:#7fffee">does not independently predict live birth</strong> once embryo ploidy is confirmed. AMH is a <em>quantitative</em>, not qualitative, biomarker of reproductive potential.</p>
+  </div>
+</div>
+
+<!-- CALCULATOR -->
+<div class="panel" id="panel-calc">
+  <div class="card">
+    <div class="chart-title" style="margin-bottom:4px;">Live Birth Probability Estimator</div>
+    <div class="chart-sub">Based on multivariable logistic regression · n=985 euploid FET cycles</div>
+
+    <div class="field">
+      <div class="field-label">
+        <span>AMH Level</span>
+        <strong id="amhVal">2.0 ng/mL</strong>
+      </div>
+      <input type="range" id="amh" min="0.1" max="10" step="0.1" value="2.0" oninput="updateSlider(this,'amhVal','ng/mL',1)">
+      <div class="amh-markers">
+        <span>Low ≤1.0</span><span>Normal 1.0–3.5</span><span>High &gt;3.5</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <span>Female Age</span>
+        <strong id="ageVal">35 yrs</strong>
+      </div>
+      <input type="range" id="age" min="25" max="45" step="1" value="35" oninput="updateSlider(this,'ageVal','yrs',0)">
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <span>BMI (kg/m²)</span>
+        <strong id="bmiVal">24.0</strong>
+      </div>
+      <input type="range" id="bmi" min="17" max="38" step="0.5" value="24" oninput="updateSlider(this,'bmiVal','',1)">
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>Embryo Biopsy Day</span></div>
+      <div class="toggle-row">
+        <div class="toggle-btn on" id="d5btn" onclick="setDay(5)">Day 5</div>
+        <div class="toggle-btn" id="d6btn" onclick="setDay(6)">Day 6</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <div class="field-label"><span>Embryo Quality</span></div>
+      <div class="toggle-row">
+        <div class="toggle-btn on" id="q1btn" onclick="setQuality(1)">Grade 1</div>
+        <div class="toggle-btn" id="q2btn" onclick="setQuality(2)">Grade 2–3</div>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()">Calculate Live Birth Probability →</button>
+  </div>
+
+  <div class="result-box" id="resultBox">
+    <div class="result-pct" id="resultPct">—</div>
+    <div class="result-lbl">Estimated Live Birth Probability</div>
+    <div class="pills" id="resultPills"></div>
+    <div class="disc">Research tool only · Based on OR from multivariable logistic regression · Not for clinical decision-making</div>
+  </div>
+</div>
+
+<!-- SEM -->
+<div class="panel" id="panel-sem">
+  <div class="card">
+    <div class="chart-title">Structural Equation Model</div>
+    <div class="chart-sub">AMH drives oocyte yield and blastocysts — but does not reach live birth.</div>
+
+    <div class="sem-diagram">
+      <div style="text-align:center; margin-bottom:4px;">
+        <div class="sem-node n-navy" style="display:inline-block; min-width:150px;">
+          <div class="sem-node-title">AMH</div>
+          <div class="sem-node-val">Exogenous predictor</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+        <div class="v-arrow"><div class="v-line v-sig"></div><div class="v-label vs-sig">β=1.70 ✓</div></div>
+        <div class="v-arrow"><div class="v-line v-sig"></div><div class="v-label vs-sig">β=0.62 ✓</div></div>
+        <div class="v-arrow"><div class="v-line v-ns"></div><div class="v-label vs-ns">β=–0.03 ns</div></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:4px;">
+        <div class="sem-node n-teal" style="padding:10px 6px; font-size:0.68rem;">
+          <div class="sem-node-title">Oocyte Yield</div>
+          <div class="sem-node-val">↑↑</div>
+        </div>
+        <div class="sem-node n-teal" style="padding:10px 6px; font-size:0.68rem;">
+          <div class="sem-node-title">Day-5 Blastocysts</div>
+          <div class="sem-node-val">↑↑</div>
+        </div>
+        <div class="sem-node n-red" style="padding:10px 6px; font-size:0.68rem;">
+          <div class="sem-node-title">Live Birth</div>
+          <div class="sem-node-val">✗</div>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+        <div class="v-arrow"><div class="v-line v-ns"></div><div class="v-label vs-ns">ns</div></div>
+        <div class="v-arrow"><div class="v-line v-ns"></div><div class="v-label vs-ns">ns</div></div>
+        <div style="padding:6px 0; text-align:center; font-size:0.58rem; color:#9ca3af;">direct<br>effect ns</div>
+      </div>
+
+      <div style="text-align:center;">
+        <div class="sem-node n-green" style="display:inline-block; min-width:200px;">
+          <div class="sem-node-title">Live Birth (outcome)</div>
+          <div class="sem-node-val">Day 6 → β=–0.32 ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fit-row">
+      <div class="fit-item"><div class="fit-val">0.97</div><div class="fit-lbl">CFI</div></div>
+      <div class="fit-item"><div class="fit-val">0.98</div><div class="fit-lbl">TLI</div></div>
+      <div class="fit-item"><div class="fit-val">0.045</div><div class="fit-lbl">RMSEA</div></div>
+      <div class="fit-item"><div class="fit-val" style="color:#16a34a;">✓</div><div class="fit-lbl">Excellent</div></div>
+    </div>
+  </div>
+
+  <div class="conclusion-box">
+    <h3>Interpretation</h3>
+    <p>AMH exerts strong effects on <em style="color:#7fffee">oocyte quantity</em> and <em style="color:#7fffee">blastocyst yield</em>. However, these pathways do not translate to live birth — confirming that AMH is a quantitative, not qualitative, marker of reproductive potential.</p>
+  </div>
+</div>
+
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['findings','calc','sem'][i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function updateSlider(el, valId, unit, dec) {
+  const pct = ((el.value-el.min)/(el.max-el.min))*100;
+  el.style.setProperty('--val', pct+'%');
+  document.getElementById(valId).textContent = parseFloat(el.value).toFixed(dec)+(unit?' '+unit:'');
+}
+document.querySelectorAll('input[type=range]').forEach(el=>{
+  const pct=((el.value-el.min)/(el.max-el.min))*100;
+  el.style.setProperty('--val',pct+'%');
+});
+
+let biopsyDay=5, quality=1;
+function setDay(d){
+  biopsyDay=d;
+  document.getElementById('d5btn').className='toggle-btn'+(d===5?' on':'');
+  document.getElementById('d6btn').className='toggle-btn'+(d===6?' on':'');
+}
+function setQuality(q){
+  quality=q;
+  document.getElementById('q1btn').className='toggle-btn'+(q===1?' on':'');
+  document.getElementById('q2btn').className='toggle-btn'+(q===2?' on':'');
+}
+
+function calculate(){
+  const amh=parseFloat(document.getElementById('amh').value);
+  const age=parseFloat(document.getElementById('age').value);
+  const bmi=parseFloat(document.getElementById('bmi').value);
+  let logit=0.12;
+  logit+=Math.log(1.05)*amh;
+  logit+=Math.log(0.985)*(age-35);
+  logit+=Math.log(0.990)*(bmi-24);
+  if(biopsyDay===6) logit+=Math.log(1/1.70);
+  if(quality===2) logit+=Math.log(0.82);
+  const prob=Math.min(85,Math.max(20,Math.round(100/(1+Math.exp(-logit)))));
+  document.getElementById('resultPct').textContent=prob+'%';
+  const grp=amh<=1.0?'Low AMH':amh<=3.5?'Normal AMH':'High AMH';
+  document.getElementById('resultPills').innerHTML=`
+    <div class="pill p-ns">AMH: ${grp} (NS)</div>
+    <div class="pill ${biopsyDay===5?'p-good':'p-warn'}">${biopsyDay===5?'Day 5 (+70% odds)':'Day 6 (ref)'}</div>
+    <div class="pill ${quality===1?'p-good':'p-warn'}">${quality===1?'Grade 1':'Grade 2–3'}</div>
+    <div class="pill p-ns">Age: ${age} yrs</div>`;
+  const box=document.getElementById('resultBox');
+  box.classList.add('show');
+  setTimeout(()=>box.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
+}
+
+Chart.defaults.font.family="'DM Sans',sans-serif";
+
+new Chart(document.getElementById('lbrChart'),{
+  type:'bar',
+  data:{
+    labels:['Low AMH\n≤1.0','Normal AMH\n1.0–3.5','High AMH\n>3.5'],
+    datasets:[
+      {label:'Live Birth %',data:[53.2,53.0,46.2],backgroundColor:'#1e7f74',borderRadius:8},
+      {label:'Clinical Pregnancy %',data:[62.2,61.6,57.0],backgroundColor:'rgba(30,127,116,0.2)',borderRadius:8},
+    ]
+  },
+  options:{responsive:true,plugins:{legend:{labels:{font:{size:11},color:'#1a1a2e',padding:10}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y}%`}}},
+    scales:{y:{beginAtZero:true,max:80,ticks:{callback:v=>v+'%',color:'#6b7a94',font:{size:10}},grid:{color:'#f0f4f8'}},x:{ticks:{color:'#1a1a2e',font:{size:10}},grid:{display:false}}}}
+});
+
+new Chart(document.getElementById('responseChart'),{
+  type:'bar',
+  data:{
+    labels:['Low AMH','Normal AMH','High AMH'],
+    datasets:[
+      {label:'Oocytes Retrieved',data:[6.15,11.21,20.05],backgroundColor:'#0f2240',borderRadius:6,yAxisID:'y'},
+      {label:'Day-5 Blastocysts',data:[2.15,3.11,4.75],backgroundColor:'#c9a84c',borderRadius:6,yAxisID:'y'},
+      {label:'Live Birth Rate %',data:[53.2,53.0,46.2],type:'line',borderColor:'#1e7f74',backgroundColor:'transparent',borderWidth:3,pointRadius:5,pointBackgroundColor:'#1e7f74',yAxisID:'y2',tension:0.3},
+    ]
+  },
+  options:{responsive:true,plugins:{legend:{labels:{font:{size:10},color:'#1a1a2e',padding:8}}},
+    scales:{y:{beginAtZero:true,ticks:{color:'#6b7a94',font:{size:10}},grid:{color:'#f0f4f8'},title:{display:true,text:'Count',color:'#6b7a94',font:{size:10}}},
+            y2:{position:'right',min:30,max:70,ticks:{callback:v=>v+'%',color:'#1e7f74',font:{size:10}},grid:{display:false}},
+            x:{ticks:{color:'#1a1a2e',font:{size:10}},grid:{display:false}}}}
+});
+</script>
+</body>
+</html>
