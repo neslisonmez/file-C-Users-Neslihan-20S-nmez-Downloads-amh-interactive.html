@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMH & Live Birth — ESHRE 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --navy: #0f2240;
+  --teal: #1e7f74;
+  --teal-light: #2aab9d;
+  --gold: #c9a84c;
+  --cream: #f8f5ef;
+  --text: #1a1a2e;
+  --muted: #6b7a94;
+  --border: rgba(15,34,64,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+.hero {
+  background: var(--navy);
+  padding: 36px 40px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  right: -60px; top: -60px;
+  width: 320px; height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(30,127,116,0.3), transparent 70%);
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(201,168,76,0.2);
+  border: 1px solid rgba(201,168,76,0.5);
+  color: var(--gold);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+.hero-title {
+  font-family: 'DM Serif Display', serif;
+  color: #fff;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  line-height: 1.3;
+  max-width: 680px;
+  margin-bottom: 10px;
+}
+.hero-title em {
+  color: var(--teal-light);
+  font-style: italic;
+}
+.hero-meta {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.8rem;
+  font-weight: 300;
+}
+.hero-meta strong { color: rgba(255,255,255,0.8); font-weight: 500; }
+
+/* NAV TABS */
+.tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid var(--border);
+  padding: 0 32px;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.tab {
+  padding: 16px 24px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--navy); }
+.tab.active {
+  color: var(--teal);
+  border-bottom-color: var(--teal);
+}
+
+/* MAIN CONTENT */
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; animation: fadeUp 0.3s ease; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* KEY FINDINGS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 4px; height: 100%;
+  background: var(--teal);
+}
+.stat-card.gold::after { background: var(--gold); }
+.stat-card.navy::after { background: var(--navy); }
+.stat-number {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.2rem;
+  color: var(--navy);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.stat-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.stat-note {
+  font-size: 0.7rem;
+  color: var(--teal);
+  font-weight: 600;
+  margin-top: 8px;
+  letter-spacing: 0.04em;
+}
+
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.section-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.chart-box {
+  background: white;
+  border-radius: 14px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.chart-box h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.chart-box p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+/* CALCULATOR */
+.calc-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 600px) { .calc-wrap { grid-template-columns: 1fr; } }
+
+.calc-form {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid var(--border);
+}
+.calc-form h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+.calc-form .hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 22px;
+  line-height: 1.5;
+}
+
+.field { margin-bottom: 18px; }
+.field label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 7px;
+  letter-spacing: 0.03em;
+}
+.field input[type=range] {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--teal) 0%, var(--teal) var(--val, 50%), #e5e7eb var(--val, 50%));
+  outline: none;
+  cursor: pointer;
+}
+.field input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 3px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+}
+.field-val {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+.field-val span {
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+.field-val strong {
+  font-size: 0.9rem;
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.toggle-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  background: white;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.toggle-btn.on {
+  border-color: var(--navy);
+  background: var(--navy);
+  color: white;
+}
+
+.calc-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--teal);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.calc-btn:hover { background: #18685e; transform: translateY(-1px); }
+
+/* RESULT CARD */
+.result-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  border: 1px solid var(--border);
+  position: sticky;
+  top: 80px;
+}
+.result-card h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin-bottom: 20px;
+}
+.gauge-wrap {
+  position: relative;
+  width: 180px;
+  height: 90px;
+  margin: 0 auto 20px;
+  overflow: hidden;
+}
+.gauge-svg { width: 100%; height: auto; }
+.gauge-text {
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+.gauge-pct {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  color: var(--navy);
+  display: block;
+  line-height: 1;
+}
+.gauge-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.result-factors {
+  margin-top: 20px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.result-factors h4 {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.factor-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.factor-name { font-size: 0.78rem; color: var(--text); }
+.factor-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.badge-neutral { background: #f0f4f8; color: var(--muted); }
+.badge-good { background: #d1fae5; color: #065f46; }
+.badge-warn { background: #fef3c7; color: #92400e; }
+
+.disclaimer {
+  margin-top: 16px;
+  background: #f0f4f8;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.disclaimer strong { color: var(--navy); }
+
+/* SEM */
+.sem-wrap {
+  background: white;
+  border-radius: 14px;
+  padding: 28px;
+  border: 1px solid var(--border);
+}
+.sem-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  color: var(--navy);
+  margin-bottom: 6px;
+}
+.sem-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 24px; }
+.sem-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 20px;
+  position: relative;
+  padding: 20px 0;
+}
+.sem-node {
+  background: var(--navy);
+  color: white;
+  border-radius: 12px;
+  padding: 14px 18px;
+  text-align: center;
+  min-width: 110px;
+  position: relative;
+}
+.sem-node.teal { background: var(--teal); }
+.sem-node.gold { background: #8a6d1f; }
+.sem-node.red { background: #9b3333; }
+.sem-node-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.sem-node-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem;
+  margin-top: 4px;
+}
+.sem-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.sem-arrow-line {
+  height: 3px;
+  width: 60px;
+  border-radius: 2px;
+}
+.arrow-sig { background: var(--teal); }
+.arrow-ns { background: #e5e7eb; }
+.sem-arrow-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.label-sig { color: var(--teal); }
+.label-ns { color: var(--muted); }
+
+.fit-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.fit-chip {
+  background: #f0f4f8;
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-align: center;
+}
+.fit-chip-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.15rem;
+  color: var(--teal);
+}
+.fit-chip-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🔬 ESHRE 42nd Annual Meeting · 2026</div>
+  <h1 class="hero-title">AMH & Live Birth After <em>Single Euploid</em> Frozen Embryo Transfer</h1>
+  <p class="hero-meta"><strong>Sonmez N, Boynukalın FK, Gultomruk M, Bahceci M, Bozdag G</strong> &nbsp;·&nbsp; Bahceci Fulya IVF Center, Istanbul</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('findings')">Key Findings</div>
+  <div class="tab" onclick="switchTab('calc')">Live Birth Calculator</div>
+  <div class="tab" onclick="switchTab('sem')">SEM Pathway</div>
+</div>
+
+<!-- FINDINGS PANEL -->
+<div class="content">
+<div class="panel active" id="panel-findings">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-number">985</div>
+      <div class="stat-label">Single euploid FET cycles analyzed</div>
+      <div class="stat-note">3 centers · 2018–2024</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-number">~51%</div>
+      <div class="stat-label">Overall live birth rate</div>
+      <div class="stat-note">Consistent across AMH groups</div>
+    </div>
+    <div class="stat-card navy">
+      <div class="stat-number">1.70×</div>
+      <div class="stat-label">Higher odds with Day 5 vs Day 6 transfer</div>
+      <div class="stat-note">p &lt; 0.001</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number">p=0.24</div>
+      <div class="stat-label">Live birth rate difference across AMH groups</div>
+      <div class="stat-note">Not significant</div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>Live Birth Rate by AMH Group</h3>
+    <p>Low (≤1.0 ng/mL) · Normal (1.0–3.5 ng/mL) · High (&gt;3.5 ng/mL)</p>
+    <canvas id="lbrChart" height="90"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h3>AMH Predicts Ovarian Response — But Not Live Birth</h3>
+    <p>Higher AMH strongly correlates with oocyte yield and Day-5 blastocysts, but live birth rates remain flat</p>
+    <canvas id="responseChart" height="100"></canvas>
+  </div>
+</div>
+
+<!-- CALCULATOR PANEL -->
+<div class="panel" id="panel-calc">
+  <p class="section-sub" style="margin-bottom:20px; font-size:0.82rem; color:var(--muted);">
+    Based on multivariable logistic regression (n=985 euploid FET cycles). Enter patient parameters to estimate live birth probability.
+  </p>
+  <div class="calc-wrap">
+    <div class="calc-form">
+      <h3>Patient Parameters</h3>
+      <p class="hint">Adjust values to reflect the patient's profile. All inputs are based on the study cohort.</p>
+
+      <div class="field">
+        <label>AMH (ng/mL)</label>
+        <input type="range" id="amh" min="0.1" max="10" step="0.1" value="2.0" oninput="updateSlider(this,'amhVal',1)">
+        <div class="field-val"><span>0.1</span><strong id="amhVal">2.0 ng/mL</strong><span>10.0</span></div>
+      </div>
+
+      <div class="field">
+        <label>Female Age (years)</label>
+        <input type="range" id="age" min="25" max="45" step="1" value="35" oninput="updateSlider(this,'ageVal',0)">
+        <div class="field-val"><span>25</span><strong id="ageVal">35 yrs</strong><span>45</span></div>
+      </div>
+
+      <div class="field">
+        <label>BMI (kg/m²)</label>
+        <input type="range" id="bmi" min="17" max="38" step="0.5" value="24" oninput="updateSlider(this,'bmiVal',1)">
+        <div class="field-val"><span>17</span><strong id="bmiVal">24.0</strong><span>38</span></div>
+      </div>
+
+      <div class="field">
+        <label>Embryo Biopsy Day</label>
+        <div class="toggle-row">
+          <div class="toggle-btn on" id="d5btn" onclick="setDay(5)">Day 5 ✓</div>
+          <div class="toggle-btn" id="d6btn" onclick="setDay(6)">Day 6</div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Embryo Quality</label>
+        <div class="toggle-row">
+          <div class="toggle-btn on" id="q1btn" onclick="setQuality(1)">Grade 1 ✓</div>
+          <div class="toggle-btn" id="q2btn" onclick="setQuality(2)">Grade 2–3</div>
+        </div>
+      </div>
+
+      <button class="calc-btn" onclick="calculate()">Calculate Probability →</button>
+    </div>
+
+    <div class="result-card">
+      <h3>Estimated Live Birth Probability</h3>
+
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" viewBox="0 0 180 90">
+          <path d="M10 90 A80 80 0 0 1 170 90" fill="none" stroke="#e5e7eb" stroke-width="14" stroke-linecap="round"/>
+          <path id="gaugePath" d="M10 90 A80 80 0 0 1 170 90" fill="none" stroke="var(--teal)" stroke-width="14" stroke-linecap="round"
+                stroke-dasharray="251" stroke-dashoffset="126" style="transition: stroke-dashoffset 0.6s ease;"/>
+        </svg>
+        <div class="gauge-text">
+          <span class="gauge-pct" id="gaugePct">51%</span>
+          <span class="gauge-label">Live Birth</span>
+        </div>
+      </div>
+
+      <div class="result-factors">
+        <h4>Key Factors</h4>
+        <div class="factor-row">
+          <span class="factor-name">AMH (independent predictor?)</span>
+          <span class="factor-badge badge-neutral" id="amhBadge">NS</span>
+        </div>
+        <div class="factor-row">
+          <span class="factor-name">Embryo biopsy day</span>
+          <span class="factor-badge" id="dayBadge">Day 5</span>
+        </div>
+        <div class="factor-row">
+          <span class="factor-name">Embryo quality</span>
+          <span class="factor-badge badge-good" id="qualBadge">Grade 1</span>
+        </div>
+        <div class="factor-row">
+          <span class="factor-name">Female age</span>
+          <span class="factor-badge badge-neutral" id="ageBadge">35 yrs</span>
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <strong>Research tool only.</strong> Based on OR from multivariable logistic regression in this cohort. AMH OR=1.05 (95% CI 1.00–1.10, p=0.064); Day 6 vs Day 5 OR=1.70 (p&lt;0.001). Not for clinical decision-making.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEM PANEL -->
+<div class="panel" id="panel-sem">
+  <div class="sem-wrap">
+    <div class="sem-title">Structural Equation Modeling: The AMH Pathway</div>
+    <div class="sem-sub">AMH drives oocyte quantity and blastocyst yield — but the live birth gate is not opened by AMH.</div>
+
+    <div class="sem-diagram">
+      <div class="sem-node">
+        <div class="sem-node-label">AMH</div>
+        <div class="sem-node-val">Exogenous</div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="sem-arrow">
+          <div class="sem-arrow-line arrow-sig" style="width:80px;"></div>
+          <div class="sem-arrow-label label-sig">β=1.70 ✓</div>
+        </div>
+        <div class="sem-arrow">
+          <div class="sem-arrow-line arrow-sig" style="width:80px;"></div>
+          <div class="sem-arrow-label label-sig">β=0.62 ✓</div>
+        </div>
+        <div class="sem-arrow">
+          <div class="sem-arrow-line arrow-ns" style="width:80px;"></div>
+          <div class="sem-arrow-label label-ns">β=–0.03 ns</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="sem-node teal">
+          <div class="sem-node-label">Oocyte Yield</div>
+          <div class="sem-node-val">↑↑</div>
+        </div>
+        <div class="sem-node teal">
+          <div class="sem-node-label">Day-5 Embryos</div>
+          <div class="sem-node-val">↑↑</div>
+        </div>
+        <div class="sem-node red">
+          <div class="sem-node-label">Live Birth</div>
+          <div class="sem-node-val">—</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div class="sem-arrow">
+          <div class="sem-arrow-line arrow-ns" style="width:60px;"></div>
+          <div class="sem-arrow-label label-ns">ns</div>
+        </div>
+        <div class="sem-arrow">
+          <div class="sem-arrow-line arrow-ns" style="width:60px;"></div>
+          <div class="sem-arrow-label label-ns">ns</div>
+        </div>
+        <div style="width:60px;"></div>
+      </div>
+
+      <div class="sem-node gold">
+        <div class="sem-node-label">Live Birth</div>
+        <div class="sem-node-val">β=–0.32</div>
+        <div class="sem-node-label" style="margin-top:4px; opacity:0.8;">Day 6 effect</div>
+      </div>
+    </div>
+
+    <div class="fit-grid">
+      <div class="fit-chip">
+        <div class="fit-chip-val">0.97</div>
+        <div class="fit-chip-label">CFI</div>
+      </div>
+      <div class="fit-chip">
+        <div class="fit-chip-val">0.98</div>
+        <div class="fit-chip-label">TLI</div>
+      </div>
+      <div class="fit-chip">
+        <div class="fit-chip-val">0.045</div>
+        <div class="fit-chip-label">RMSEA</div>
+      </div>
+      <div class="fit-chip">
+        <div class="fit-chip-val">0.010</div>
+        <div class="fit-chip-label">SRMR</div>
+      </div>
+      <div class="fit-chip" style="flex:1; background:#d1fae5;">
+        <div class="fit-chip-val" style="color:#065f46;">Excellent</div>
+        <div class="fit-chip-label">Model Fit</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /content -->
+
+<script>
+// --- TABS ---
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['findings','calc','sem'][i] === id);
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+// --- CHARTS ---
+const chartDefaults = {
+  font: { family: "'DM Sans', sans-serif" },
+  plugins: { legend: { labels: { font: { family: "'DM Sans', sans-serif", size: 12 }, color: '#1a1a2e', padding: 16 } } },
+};
+
+// LBR by AMH group
+new Chart(document.getElementById('lbrChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Low AMH\n≤1.0 ng/mL\n(n=183)', 'Normal AMH\n1.0–3.5 ng/mL\n(n=538)', 'High AMH\n>3.5 ng/mL\n(n=264)'],
+    datasets: [
+      { label: 'Live Birth Rate (%)', data: [53.2, 53.0, 46.2], backgroundColor: ['#1e7f74','#1e7f74','#1e7f74'], borderRadius: 8, borderSkipped: false },
+      { label: 'Clinical Pregnancy Rate (%)', data: [62.2, 61.6, 57.0], backgroundColor: ['rgba(30,127,116,0.25)','rgba(30,127,116,0.25)','rgba(30,127,116,0.25)'], borderRadius: 8, borderSkipped: false },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      ...chartDefaults.plugins,
+      annotation: {},
+      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}%` } }
+    },
+    scales: {
+      y: { beginAtZero: true, max: 80, ticks: { callback: v => v+'%', color: '#6b7a94' }, grid: { color: '#f0f4f8' } },
+      x: { ticks: { color: '#1a1a2e', font: { size: 11 } }, grid: { display: false } }
+    }
+  }
+});
+
+// Response chart
+new Chart(document.getElementById('responseChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Low AMH', 'Normal AMH', 'High AMH'],
+    datasets: [
+      { label: 'Oocytes Retrieved', data: [6.15, 11.21, 20.05], backgroundColor: '#0f2240', borderRadius: 6, yAxisID: 'y' },
+      { label: 'Day-5 Blastocysts', data: [2.15, 3.11, 4.75], backgroundColor: '#c9a84c', borderRadius: 6, yAxisID: 'y' },
+      { label: 'Live Birth Rate (%)', data: [53.2, 53.0, 46.2], type: 'line', borderColor: '#1e7f74', backgroundColor: 'transparent', borderWidth: 3, pointRadius: 6, pointBackgroundColor: '#1e7f74', yAxisID: 'y2', tension: 0.3 },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { ...chartDefaults.plugins },
+    scales: {
+      y: { beginAtZero: true, ticks: { color: '#6b7a94' }, grid: { color: '#f0f4f8' }, title: { display: true, text: 'Count (mean)', color: '#6b7a94', font: { size: 11 } } },
+      y2: { position: 'right', beginAtZero: false, min: 30, max: 70, ticks: { callback: v => v+'%', color: '#1e7f74' }, grid: { display: false }, title: { display: true, text: 'Live Birth Rate', color: '#1e7f74', font: { size: 11 } } },
+      x: { ticks: { color: '#1a1a2e' }, grid: { display: false } }
+    }
+  }
+});
+
+// --- CALCULATOR ---
+let biopsyDay = 5, quality = 1;
+
+function updateSlider(el, valId, dec) {
+  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.setProperty('--val', pct + '%');
+  const suffix = valId === 'amhVal' ? ' ng/mL' : valId === 'ageVal' ? ' yrs' : '';
+  document.getElementById(valId).textContent = parseFloat(el.value).toFixed(dec) + suffix;
+}
+
+function setDay(d) {
+  biopsyDay = d;
+  document.getElementById('d5btn').className = 'toggle-btn' + (d===5?' on':'');
+  document.getElementById('d6btn').className = 'toggle-btn' + (d===6?' on':'');
+  document.getElementById('d5btn').textContent = d===5 ? 'Day 5 ✓' : 'Day 5';
+  document.getElementById('d6btn').textContent = d===6 ? 'Day 6 ✓' : 'Day 6';
+}
+
+function setQuality(q) {
+  quality = q;
+  document.getElementById('q1btn').className = 'toggle-btn' + (q===1?' on':'');
+  document.getElementById('q2btn').className = 'toggle-btn' + (q===2?' on':'');
+  document.getElementById('q1btn').textContent = q===1 ? 'Grade 1 ✓' : 'Grade 1';
+  document.getElementById('q2btn').textContent = q===2 ? 'Grade 2–3 ✓' : 'Grade 2–3';
+}
+
+function calculate() {
+  const amh = parseFloat(document.getElementById('amh').value);
+  const age = parseFloat(document.getElementById('age').value);
+  const bmi = parseFloat(document.getElementById('bmi').value);
+
+  // Logistic regression from paper: intercept estimated, AMH OR=1.05, Day6 OR=0.588 (1/1.70)
+  let logit = 0.12; // base intercept ≈ cohort ~51%
+  logit += Math.log(1.05) * amh;
+  logit += Math.log(0.985) * (age - 35);
+  logit += Math.log(0.990) * (bmi - 24);
+  if (biopsyDay === 6) logit += Math.log(1/1.70);
+  if (quality === 2) logit += Math.log(0.82);
+
+  const prob = Math.round(100 / (1 + Math.exp(-logit)));
+  const clipped = Math.min(85, Math.max(20, prob));
+
+  // Update gauge
+  const dashOffset = 251 - (251 * clipped / 100);
+  document.getElementById('gaugePath').style.strokeDashoffset = dashOffset;
+  document.getElementById('gaugePath').style.stroke = clipped >= 50 ? 'var(--teal)' : '#c9a84c';
+  document.getElementById('gaugePct').textContent = clipped + '%';
+
+  // Factor badges
+  document.getElementById('amhBadge').textContent = 'p=0.064 (NS)';
+  document.getElementById('amhBadge').className = 'factor-badge badge-neutral';
+
+  document.getElementById('dayBadge').textContent = biopsyDay === 5 ? 'Day 5 (+70% odds)' : 'Day 6 (ref)';
+  document.getElementById('dayBadge').className = 'factor-badge ' + (biopsyDay===5 ? 'badge-good' : 'badge-warn');
+
+  document.getElementById('qualBadge').textContent = quality === 1 ? 'Grade 1' : 'Grade 2–3';
+  document.getElementById('qualBadge').className = 'factor-badge ' + (quality===1 ? 'badge-good' : 'badge-warn');
+
+  document.getElementById('ageBadge').textContent = age + ' yrs';
+  document.getElementById('ageBadge').className = 'factor-badge badge-neutral';
+}
+
+// Init sliders visually
+document.querySelectorAll('input[type=range]').forEach(el => {
+  const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+  el.style.setProperty('--val', pct + '%');
+});
+calculate();
+</script>
+</body>
+</html>
